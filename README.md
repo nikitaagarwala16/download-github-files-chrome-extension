@@ -1,7 +1,7 @@
 # GitHub File Downloader Extension
 
 ## About
-The GitHub File Downloader is a Chrome extension enables users to download files from GitHub with a single click.
+The GitHub File Downloader is a Chrome extension that enables users to download files from GitHub with a single click.
 
 ## How to Install (Unpacked Version)
 To install the unpacked version of this extension, follow these steps:
