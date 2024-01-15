@@ -16,7 +16,7 @@ To install the unpacked version of this extension, follow these steps:
 
 1. After installing the extension, pin it to the toolbar for easy access.
 2. The extension is disabled by default for each new tab.
-3. To enable the extension on a specific GitHub page, simply click the extension icon once. This action activates the extension for that particular page.
+3. To enable the extension on a specific GitHub page, simply click the extension icon once. This action activates the extension for that particular page.Currently you might notice two seconds delay.
 4. With the extension enabled, you can download any single file on GitHub by clicking on it.
 5. To deactivate the extension and revert to the standard behavior, click the extension icon again.
 6. Refreshing a tab resets the extension to its default state, which is 'off'.

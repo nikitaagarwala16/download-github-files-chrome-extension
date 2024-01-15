@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Download Github Files",
     "description" : "Allows one to download a file from Github by double click when enabled",
-    "version" : "1.0",
+    "version" : "1.1",
     "icons": {
         "16": "images/github-16.png",
         "32": "images/github-32.png",

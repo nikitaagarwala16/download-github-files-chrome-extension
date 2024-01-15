@@ -2,34 +2,27 @@ if (!window.hasDownloadListenersInjected) {
     window.hasDownloadListenersInjected = true;
 
     let links = [];
-    let observer; // To keep track of the observer
+    let observer;
+    let isExtensionEnabled = false; 
 
-    function addDownloadListeners() {
-
-        if(links.length != 0)
-        removeDownloadListeners()
-
+    function updateLinks() {
+        // Get all links and filter them
         links = document.querySelectorAll('a[href*="blob"]');
-
-        // filtering out files starting with . for example .gitignore 
         links = Array.from(links).filter(link => {
             const filename = link.href.split('/').pop();
             return !filename.startsWith('.');
         });
+    }
 
-        var linkUrls = Array.from(links).map(link => link.href);
-    
-        // Remove duplicates and sort
-        linkUrls = [...new Set(linkUrls)];
-    
-        // Logging the links (for debugging purposes, remove in production)
-        for (const link of linkUrls) {
-        console.log(link);
-        }
+    function addDownloadListeners() {
+        if (!isExtensionEnabled) return; // Listeners are not added if the extension is disabled
+
+        updateLinks(); // Update the list of links
 
         links.forEach(link => {
             link.addEventListener('click', handleDownload);
         });
+
         console.log('Download listeners added.');
     }
 
@@ -37,10 +30,13 @@ if (!window.hasDownloadListenersInjected) {
         links.forEach(link => {
             link.removeEventListener('click', handleDownload);
         });
+
         console.log('Download listeners removed.');
     }
 
     function handleDownload(event) {
+        if (!isExtensionEnabled) return; // Prevent download if the extension is disabled
+
         event.preventDefault();
         var url = event.currentTarget.href;
 
@@ -50,20 +46,17 @@ if (!window.hasDownloadListenersInjected) {
 
         var filename = url.split('/').pop(); // Extract the file name
 
-        try {
-            // Attempt to send the message
-            chrome.runtime.sendMessage({ downloadUrl: url, filename: filename });
-        } catch (error) {
-            // Log the error or handle it as needed
-            console.error('This is known error, currently extension does not support private repositories', error);
+        chrome.runtime.sendMessage({ downloadUrl: url, filename: filename });
         }
-    }
 
     function observePageChanges() {
         observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.addedNodes.length) {
-                    addDownloadListeners();
+                    updateLinks(); // Update the list of links on DOM changes
+                    if (isExtensionEnabled) {
+                        addDownloadListeners();
+                    }
                 }
             });
         });
@@ -74,22 +67,24 @@ if (!window.hasDownloadListenersInjected) {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.action === 'ping') {
             sendResponse({ status: 'active' });
-        }
-        else if (message.action === 'enable') {
+            return true; }
+        if (message.action === 'enable') {
+            isExtensionEnabled = true;
             addDownloadListeners();
+            // Observe page changes only if the extension is enabled
             observePageChanges();
         } else if (message.action === 'disable') {
+            isExtensionEnabled = false;
             removeDownloadListeners();
-            observer.disconnect();
+            if (observer) {
+                observer.disconnect();
+            }
         }
     });
 
     // Initial setup
     document.addEventListener('DOMContentLoaded', () => {
-        addDownloadListeners();
+        updateLinks(); // Update links on DOM content loaded
         observePageChanges();
     });
 }
-
-
-
